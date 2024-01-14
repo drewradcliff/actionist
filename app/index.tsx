@@ -1,26 +1,13 @@
 import { Feather } from "@expo/vector-icons"
-import { Stack } from "expo-router/stack"
 import { StatusBar } from "expo-status-bar"
 import { useState } from "react"
-import { Pressable, Text, View } from "react-native"
+import { Pressable, Text, TextInput, View } from "react-native"
 
 export default function App() {
 	const [checked, setChecked] = useState(false)
 
 	return (
 		<View className="flex-1 bg-white px-4 pt-6">
-			<Stack.Screen
-				options={{
-					title: "Todos",
-					headerRight: () => (
-						<Pressable>
-							<Text>
-								<Feather name="plus" size={24} color="black" />
-							</Text>
-						</Pressable>
-					),
-				}}
-			/>
 			<StatusBar style="auto" />
 			<View className="flex-row items-center justify-between pb-2">
 				<Text className="text-xl">File taxes</Text>
@@ -29,7 +16,10 @@ export default function App() {
 			<View className="flex-row items-center">
 				<Checkbox onChange={() => setChecked(!checked)} checked={checked} />
 				<Text className="pr-2">{checked ? "DONE" : "TODO"}</Text>
-				<Text className={`text-lg ${checked && "line-through"}`}>Step 1</Text>
+				<TextInput
+					className={`flex-1 ${checked && "line-through"}`}
+					value="todo 1"
+				/>
 			</View>
 		</View>
 	)
