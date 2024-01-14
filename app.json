@@ -1,12 +1,12 @@
 {
 	"expo": {
-		"name": "drizzle-expo-sqlite",
-		"slug": "drizzle-expo-sqlite",
+		"name": "actionist",
+		"slug": "actionist",
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
-		"scheme": "drizzle-expo-sqlite",
-		"userInterfaceStyle": "automatic",
+		"scheme": "actionist",
+		"userInterfaceStyle": "light",
 		"splash": {
 			"image": "./assets/images/splash.png",
 			"resizeMode": "contain",
