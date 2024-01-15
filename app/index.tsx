@@ -9,35 +9,51 @@ import { Pressable, Text, TextInput, View } from "react-native"
 import { queryClient } from "./_layout"
 
 export default function App() {
+	const [text, setText] = useState("")
 	const { data } = useQuery({
 		queryKey: ["todos"],
 		queryFn: () => db.select().from(todos).all(),
 	})
 
+	const donePercentage = Math.floor(
+		((data?.filter(({ status }) => status === "DONE").length ?? 0) /
+			(data?.length ?? 1)) *
+			100,
+	)
+
 	const { mutate } = useMutation({
 		mutationFn: () =>
 			db.insert(todos).values({
-				title: "hello world",
+				title: text,
 				status: "TODO",
 			}),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+		onSuccess: () => {
+			setText("")
+			queryClient.invalidateQueries({ queryKey: ["todos"] })
+		},
 	})
 
 	return (
 		<View className="flex-1 bg-white px-4 pt-6">
 			<StatusBar style="auto" />
-			<View className="flex-row items-center justify-between pb-2">
+			<View className="flex-row items-center justify-between pb-6">
 				<Text className="text-xl">File taxes</Text>
-				<Text className="text-gray-500">0%</Text>
+				<Text className="text-gray-500">{donePercentage}%</Text>
 			</View>
-			{data?.map((todo) => (
-				<View key={todo.id} className="pb-4">
-					<Todo id={todo.id} title={todo.title} status={todo.status} />
+			{data?.map(({ id, title, status }) => (
+				<View key={id} className="pb-4">
+					<Todo id={id} title={title} status={status} />
 				</View>
 			))}
-			<Pressable className="w-8 items-center pt-2" onPress={() => mutate()}>
-				<Feather name="plus" size={18} color="black" />
-			</Pressable>
+			<View className="flex-row">
+				<TextInput
+					placeholder="Add todo"
+					className="flex-1 py-1"
+					value={text}
+					onChangeText={setText}
+					onSubmitEditing={() => mutate()}
+				/>
+			</View>
 		</View>
 	)
 }
@@ -52,12 +68,24 @@ function Todo({
 	status: string
 }) {
 	const [value, setValue] = useState(title)
-	const { mutate } = useMutation({
-		mutationFn: () =>
+
+	const { mutate: mutateStatus } = useMutation({
+		mutationFn: (status: string) =>
 			db
 				.update(todos)
 				.set({
-					status: status === "DONE" ? "TODO" : "DONE",
+					status: status,
+				})
+				.where(eq(todos.id, id)),
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+	})
+
+	const { mutate: mutateTitle } = useMutation({
+		mutationFn: (title: string) =>
+			db
+				.update(todos)
+				.set({
+					title: title,
 				})
 				.where(eq(todos.id, id)),
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
@@ -65,12 +93,24 @@ function Todo({
 
 	return (
 		<View className="flex-row items-center">
-			<Checkbox onChange={() => mutate()} checked={status === "DONE"} />
-			<Text className="pr-2">{status}</Text>
+			<Checkbox
+				onChange={() => mutateStatus(status === "DONE" ? "TODO" : "DONE")}
+				checked={status === "DONE"}
+			/>
+			<Pressable
+				onPress={() =>
+					mutateStatus(
+						status === "TODO" ? "DOING" : status === "DOING" ? "DONE" : "TODO",
+					)
+				}
+			>
+				<Text className="px-2 py-1">{status}</Text>
+			</Pressable>
 			<TextInput
 				className={`flex-1 ${status === "DONE" && "line-through"}`}
 				value={value}
 				onChangeText={setValue}
+				onBlur={() => mutateTitle(value)}
 			/>
 		</View>
 	)
@@ -86,7 +126,7 @@ function Checkbox({
 	return (
 		<Pressable
 			onPress={onChange}
-			className="mr-4 h-8 w-8 items-center justify-center bg-gray-200"
+			className="h-8 w-8 items-center justify-center bg-gray-200"
 		>
 			{checked && <Feather name="check" size={16} />}
 		</Pressable>
