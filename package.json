@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^13.0.0",
+    "@tanstack/react-query": "^5.17.10",
     "drizzle-orm": "^0.29.2",
     "expo": "~50.0.0-preview.7",
     "expo-font": "~11.10.0",
