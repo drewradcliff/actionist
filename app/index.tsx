@@ -15,11 +15,8 @@ export default function App() {
 		queryFn: () => db.select().from(todos).all(),
 	})
 
-	const donePercentage = Math.floor(
-		((data?.filter(({ status }) => status === "DONE").length ?? 0) /
-			(data?.length ?? 1)) *
-			100,
-	)
+	const todosDone = data?.filter(({ status }) => status === "DONE").length ?? 0
+	const donePercentage = Math.floor((todosDone / (data?.length ?? 1)) * 100)
 
 	const { mutate } = useMutation({
 		mutationFn: () =>
@@ -36,9 +33,14 @@ export default function App() {
 	return (
 		<View className="flex-1 bg-white px-4 pt-6">
 			<StatusBar style="auto" />
-			<View className="flex-row items-center justify-between pb-6">
-				<Text className="text-xl">File taxes</Text>
-				<Text className="text-gray-500">{donePercentage}%</Text>
+			<Text className="pb-2 text-xl">File taxes</Text>
+			<View className="flex-row items-center justify-between pb-4">
+				<View className="h-2 flex-1 bg-gray-100">
+					<View className={"h-2 bg-gray-500 " + `w-[${donePercentage}%]`} />
+				</View>
+				<Text className="pl-4 text-gray-500">
+					{`${todosDone}/${data?.length ?? 0}`}
+				</Text>
 			</View>
 			{data?.map(({ id, title, status }) => (
 				<View key={id} className="pb-4">
@@ -51,7 +53,9 @@ export default function App() {
 					className="flex-1 py-1"
 					value={text}
 					onChangeText={setText}
-					onSubmitEditing={() => mutate()}
+					onSubmitEditing={() => {
+						if (text) mutate()
+					}}
 				/>
 			</View>
 		</View>
@@ -91,6 +95,11 @@ function Todo({
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
 	})
 
+	const { mutate: deleteTodo } = useMutation({
+		mutationFn: () => db.delete(todos).where(eq(todos.id, id)),
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+	})
+
 	return (
 		<View className="flex-row items-center">
 			<Checkbox
@@ -110,7 +119,7 @@ function Todo({
 				className={`flex-1 ${status === "DONE" && "line-through"}`}
 				value={value}
 				onChangeText={setValue}
-				onBlur={() => mutateTitle(value)}
+				onBlur={() => (value === "" ? deleteTodo() : mutateTitle(value))}
 			/>
 		</View>
 	)
