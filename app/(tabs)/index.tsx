@@ -1,6 +1,6 @@
 import { db } from "@/db/client"
 import { todos } from "@/db/schema"
-import { Feather } from "@expo/vector-icons"
+import { Feather, Ionicons } from "@expo/vector-icons"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { eq } from "drizzle-orm"
 import { StatusBar } from "expo-status-bar"
@@ -33,10 +33,18 @@ export default function App() {
 	return (
 		<View className="flex-1 bg-white px-4 pt-6">
 			<StatusBar style="auto" />
-			<Text className="pb-2 text-xl">File taxes</Text>
+			<View className="flex-row justify-between">
+				<Text className="pb-2 text-xl">File taxes</Text>
+				<Ionicons name="ellipsis-horizontal" size={24} color="black" />
+			</View>
 			<View className="flex-row items-center justify-between pb-4">
 				<View className="h-2 flex-1 bg-gray-100">
-					<View className={"h-2 bg-gray-500 " + `w-[${donePercentage}%]`} />
+					<View
+						className={"h-2 bg-gray-500"}
+						style={{
+							width: `${donePercentage}%`,
+						}}
+					/>
 				</View>
 				<Text className="pl-4 text-gray-500">
 					{`${todosDone}/${data?.length ?? 0}`}
