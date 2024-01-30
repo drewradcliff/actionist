@@ -1,22 +1,33 @@
-import { sql } from "drizzle-orm"
+import { relations, sql } from "drizzle-orm"
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core"
 
-// export const projects = sqliteTable("projects", {
-// 	id: integer("id").primaryKey(),
-// 	name: text("name").notNull(),
-// 	createdAt: text("created_at")
-// 		.default(sql`CURRENT_TIMESTAMP`)
-// 		.notNull(),
-// 	updatedAt: text("updated_at"),
-// })
-
-export const todos = sqliteTable("todos", {
+export const lists = sqliteTable("lists", {
 	id: integer("id").primaryKey(),
-	// projectId: integer("project_id").references(() => projects.id),
 	title: text("title").notNull(),
-	status: text("status").notNull(),
 	createdAt: text("created_at")
 		.default(sql`CURRENT_TIMESTAMP`)
 		.notNull(),
 	updatedAt: text("updated_at"),
 })
+
+export const listsRelations = relations(lists, ({ many }) => ({
+	todos: many(todos)
+}))
+
+export const todos = sqliteTable("todos", {
+	id: integer("id").primaryKey(),
+	listId: integer("list_id"),
+	title: text("title").notNull(),
+	status: text("status").default('TODO').notNull(),
+	createdAt: text("created_at")
+		.default(sql`CURRENT_TIMESTAMP`)
+		.notNull(),
+	updatedAt: text("updated_at"),
+})
+
+export const todosRelations = relations(todos, ({ one }) => ({
+	list: one(todos, {
+		fields: [todos.listId],
+		references: [todos.id]
+	})
+}))

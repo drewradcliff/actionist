@@ -9,20 +9,46 @@ import { Pressable, Text, TextInput, View } from "react-native"
 import { queryClient } from "../_layout"
 
 export default function App() {
+	const { data } = useQuery({
+		queryKey: ["lists"],
+		queryFn: () => db.query.lists.findMany(),
+	})
+
+	return (
+		<View className="flex-1 bg-white px-4 pt-6">
+			<StatusBar style="auto" />
+			{data?.map(({ id, title }) => (
+				<View key={id} className="pb-12">
+					<View className="flex-row justify-between">
+						<Text className="pb-2 text-xl">{title}</Text>
+						<Ionicons name="ellipsis-horizontal" size={24} color="black" />
+					</View>
+					<TodoList id={id} />
+				</View>
+			))}
+		</View>
+	)
+}
+
+function TodoList({ id }: { id: number }) {
 	const [text, setText] = useState("")
 	const { data } = useQuery({
-		queryKey: ["todos"],
-		queryFn: () => db.select().from(todos).all(),
+		queryKey: ["todos", id],
+		queryFn: () =>
+			db.query.todos.findMany({
+				where: eq(todos.listId, id),
+			}),
 	})
 
 	const todosDone = data?.filter(({ status }) => status === "DONE").length ?? 0
-	const donePercentage = Math.floor((todosDone / (data?.length ?? 1)) * 100)
+	const donePercentage = Math.floor((todosDone / (data?.length || 1)) * 100)
 
 	const { mutate } = useMutation({
 		mutationFn: () =>
 			db.insert(todos).values({
 				title: text,
 				status: "TODO",
+				listId: id,
 			}),
 		onSuccess: () => {
 			setText("")
@@ -31,12 +57,7 @@ export default function App() {
 	})
 
 	return (
-		<View className="flex-1 bg-white px-4 pt-6">
-			<StatusBar style="auto" />
-			<View className="flex-row justify-between">
-				<Text className="pb-2 text-xl">File taxes</Text>
-				<Ionicons name="ellipsis-horizontal" size={24} color="black" />
-			</View>
+		<View>
 			<View className="flex-row items-center justify-between pb-4">
 				<View className="h-2 flex-1 bg-gray-100">
 					<View
