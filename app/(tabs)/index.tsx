@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm"
 import { StatusBar } from "expo-status-bar"
 import { useState } from "react"
 import { Pressable, Text, TextInput, View } from "react-native"
-import { queryClient } from "./_layout"
+import { queryClient } from "../_layout"
 
 export default function App() {
 	const [text, setText] = useState("")
