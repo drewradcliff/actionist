@@ -4,6 +4,7 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core"
 export const lists = sqliteTable("lists", {
 	id: integer("id").primaryKey(),
 	title: text("title").notNull(),
+	isArchived: integer("is_archived").default(0).notNull(),
 	createdAt: text("created_at")
 		.default(sql`CURRENT_TIMESTAMP`)
 		.notNull(),

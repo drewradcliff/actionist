@@ -1,0 +1,1 @@
+ALTER TABLE lists ADD `is_archived` integer DEFAULT 0 NOT NULL;

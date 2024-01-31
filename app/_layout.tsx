@@ -15,7 +15,18 @@ export default function Layout() {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<Stack screenOptions={{ headerShown: false }}>
-				<Stack.Screen name="add" options={{ presentation: "modal" }} />
+				<Stack.Screen
+					name="add"
+					options={{
+						presentation: "modal",
+					}}
+				/>
+				<Stack.Screen
+					name="modal/[id]"
+					options={{
+						presentation: "modal",
+					}}
+				/>
 			</Stack>
 		</QueryClientProvider>
 	)

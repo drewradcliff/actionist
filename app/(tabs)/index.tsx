@@ -3,6 +3,7 @@ import { todos } from "@/db/schema"
 import { Feather, Ionicons } from "@expo/vector-icons"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { eq } from "drizzle-orm"
+import { Link } from "expo-router"
 import { StatusBar } from "expo-status-bar"
 import { useState } from "react"
 import { Pressable, Text, TextInput, View } from "react-native"
@@ -11,7 +12,10 @@ import { queryClient } from "../_layout"
 export default function App() {
 	const { data } = useQuery({
 		queryKey: ["lists"],
-		queryFn: () => db.query.lists.findMany(),
+		queryFn: () =>
+			db.query.lists.findMany({
+				where: (lists, { eq }) => eq(lists.isArchived, 0),
+			}),
 	})
 
 	return (
@@ -21,7 +25,14 @@ export default function App() {
 				<View key={id} className="pb-12">
 					<View className="flex-row justify-between">
 						<Text className="pb-2 text-xl">{title}</Text>
-						<Ionicons name="ellipsis-horizontal" size={24} color="black" />
+						<Link
+							href={{
+								pathname: "/modal/[id]",
+								params: { id },
+							}}
+						>
+							<Ionicons name="ellipsis-horizontal" size={24} color="black" />
+						</Link>
 					</View>
 					<TodoList id={id} />
 				</View>
