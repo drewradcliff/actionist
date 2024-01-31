@@ -7,37 +7,39 @@ import { useLocalSearchParams, useRouter } from "expo-router"
 import { Pressable, Text, View } from "react-native"
 
 export default function Modal() {
-	const local = useLocalSearchParams<{ id: string }>()
+	const local = useLocalSearchParams<{ id: string; archive: string }>()
 	const router = useRouter()
+	const isArchived = Number(local.archive)
+	const id = Number(local.id)
 
 	const { mutate: mutateDelete } = useMutation({
 		mutationFn: async () => {
-			await db.delete(lists).where(eq(lists.id, Number(local.id)))
-			await db.delete(todos).where(eq(todos.listId, Number(local.id)))
+			await db.delete(lists).where(eq(lists.id, id))
+			await db.delete(todos).where(eq(todos.listId, id))
 		},
-		onSuccess: () => router.replace("/(tabs)/"),
+		onSuccess: () => router.replace(isArchived ? "/" : "/archive"),
 	})
 
 	const { mutate: mutateArchive } = useMutation({
 		mutationFn: () =>
-			db
-				.update(lists)
-				.set({ isArchived: 1 })
-				.where(eq(lists.id, Number(local.id))),
-		onSuccess: () => router.replace("/(tabs)/"),
+			db.update(lists).set({ isArchived }).where(eq(lists.id, id)),
+		onSuccess: () => router.replace(isArchived ? "/" : "/archive"),
 	})
 
 	return (
-		<View className="p-4">
+		<View className="flex-1 bg-white p-4">
+			<View className="flex-row justify-center pb-4">
+				<View className="h-1 w-10 rounded bg-gray-300" />
+			</View>
 			<Pressable onPress={() => mutateArchive()}>
 				{({ pressed }) => (
 					<View
 						className={clsx(
 							"rounded-t-xl border-b border-gray-300  py-4 pl-4",
-							pressed ? "bg-gray-300" : "bg-gray-200",
+							pressed ? "bg-gray-200" : "bg-gray-100",
 						)}
 					>
-						<Text className="font-bold">Archive</Text>
+						<Text>{isArchived ? "Archive" : "Unarchive"}</Text>
 					</View>
 				)}
 			</Pressable>
@@ -46,10 +48,10 @@ export default function Modal() {
 					<View
 						className={clsx(
 							"rounded-b-xl border-gray-300  py-4 pl-4",
-							pressed ? "bg-gray-300" : "bg-gray-200",
+							pressed ? "bg-gray-200" : "bg-gray-100",
 						)}
 					>
-						<Text className="font-bold text-red-500">Delete</Text>
+						<Text className="text-red-500">Delete</Text>
 					</View>
 				)}
 			</Pressable>

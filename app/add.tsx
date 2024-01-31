@@ -1,8 +1,7 @@
 import { db } from "@/db/client"
 import { lists } from "@/db/schema"
-import { Feather } from "@expo/vector-icons"
 import { useMutation } from "@tanstack/react-query"
-import { Link, useRouter } from "expo-router"
+import { useRouter } from "expo-router"
 import { useState } from "react"
 import { Pressable, Text, TextInput, View } from "react-native"
 
@@ -15,17 +14,15 @@ export default function Add() {
 			db.insert(lists).values({
 				title: text,
 			}),
-		onSuccess: () => router.replace("/(tabs)/"),
+		onSuccess: () => router.replace("/"),
 	})
 
 	return (
 		<View className="p-4">
-			<View className="flex-row justify-between">
-				<Text className="pb-4 text-lg">Add New List</Text>
-				<Link href="/(tabs)/" asChild>
-					<Feather name="x" size={24} color="black" />
-				</Link>
+			<View className="flex-row justify-center pb-4">
+				<View className="h-1 w-10 rounded bg-gray-300" />
 			</View>
+			<Text className="pb-4 text-lg">Add New List</Text>
 			<TextInput
 				className="order-gray-300 pb-8"
 				placeholder="List Name"

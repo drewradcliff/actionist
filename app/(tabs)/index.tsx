@@ -27,8 +27,8 @@ export default function App() {
 						<Text className="pb-2 text-xl">{title}</Text>
 						<Link
 							href={{
-								pathname: "/modal/[id]",
-								params: { id },
+								pathname: "/modal/[id, archive]",
+								params: { id, archive: 1 },
 							}}
 						>
 							<Ionicons name="ellipsis-horizontal" size={24} color="black" />

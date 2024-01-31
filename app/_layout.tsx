@@ -22,7 +22,7 @@ export default function Layout() {
 					}}
 				/>
 				<Stack.Screen
-					name="modal/[id]"
+					name="modal/[id, archive]"
 					options={{
 						presentation: "modal",
 					}}
