@@ -1,5 +1,6 @@
+import ProgressBar from "@/components/progress-bar"
 import { db } from "@/db/client"
-import { todos } from "@/db/schema"
+import { todos, type SelectTodos } from "@/db/schema"
 import { Feather, Ionicons } from "@expo/vector-icons"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { eq } from "drizzle-orm"
@@ -15,13 +16,26 @@ export default function App() {
 		queryFn: () =>
 			db.query.lists.findMany({
 				where: (lists, { eq }) => eq(lists.isArchived, 0),
+				with: {
+					todos: true,
+				},
 			}),
 	})
+
+	const doingTodos = data
+		?.map(({ todos }) => todos.filter(({ status }) => status === "DOING"))
+		.flat()
 
 	return (
 		<View className="flex-1 bg-white px-4 pt-6">
 			<StatusBar style="auto" />
-			{data?.map(({ id, title }) => (
+			{!!doingTodos?.length && (
+				<View className="pb-12">
+					<Text className="pb-4 text-xl">✨ Focus ✨</Text>
+					<TodoList todoData={doingTodos ?? []} />
+				</View>
+			)}
+			{data?.map(({ id, title, todos }) => (
 				<View key={id} className="pb-12">
 					<View className="flex-row justify-between">
 						<Text className="pb-2 text-xl">{title}</Text>
@@ -34,25 +48,21 @@ export default function App() {
 							<Ionicons name="ellipsis-horizontal" size={24} color="black" />
 						</Link>
 					</View>
-					<TodoList id={id} />
+					<TodoWrapper todos={todos} id={id} />
 				</View>
 			))}
 		</View>
 	)
 }
 
-function TodoList({ id }: { id: number }) {
+function TodoWrapper({
+	todos: todosData,
+	id,
+}: {
+	todos: SelectTodos[]
+	id: number
+}) {
 	const [text, setText] = useState("")
-	const { data } = useQuery({
-		queryKey: ["todos", id],
-		queryFn: () =>
-			db.query.todos.findMany({
-				where: eq(todos.listId, id),
-			}),
-	})
-
-	const todosDone = data?.filter(({ status }) => status === "DONE").length ?? 0
-	const donePercentage = Math.floor((todosDone / (data?.length || 1)) * 100)
 
 	const { mutate } = useMutation({
 		mutationFn: () =>
@@ -63,30 +73,14 @@ function TodoList({ id }: { id: number }) {
 			}),
 		onSuccess: () => {
 			setText("")
-			queryClient.invalidateQueries({ queryKey: ["todos"] })
+			queryClient.invalidateQueries({ queryKey: ["lists"] })
 		},
 	})
 
 	return (
 		<View>
-			<View className="flex-row items-center justify-between pb-4">
-				<View className="h-2 flex-1 bg-gray-100">
-					<View
-						className={"h-2 bg-gray-500"}
-						style={{
-							width: `${donePercentage}%`,
-						}}
-					/>
-				</View>
-				<Text className="pl-4 text-gray-500">
-					{`${todosDone}/${data?.length ?? 0}`}
-				</Text>
-			</View>
-			{data?.map(({ id, title, status }) => (
-				<View key={id} className="pb-4">
-					<Todo id={id} title={title} status={status} />
-				</View>
-			))}
+			<ProgressBar todos={todosData} />
+			<TodoList todoData={todosData} />
 			<View className="flex-row">
 				<TextInput
 					placeholder="Add todo"
@@ -98,6 +92,18 @@ function TodoList({ id }: { id: number }) {
 					}}
 				/>
 			</View>
+		</View>
+	)
+}
+
+function TodoList({ todoData }: { todoData: SelectTodos[]; icon?: any }) {
+	return (
+		<View>
+			{todoData.map(({ id, title, status }) => (
+				<View key={id} className="pb-4">
+					<Todo id={id} title={title} status={status} />
+				</View>
+			))}
 		</View>
 	)
 }
@@ -121,7 +127,7 @@ function Todo({
 					status: status,
 				})
 				.where(eq(todos.id, id)),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["lists"] }),
 	})
 
 	const { mutate: mutateTitle } = useMutation({
@@ -132,12 +138,12 @@ function Todo({
 					title: title,
 				})
 				.where(eq(todos.id, id)),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["lists"] }),
 	})
 
 	const { mutate: deleteTodo } = useMutation({
 		mutationFn: () => db.delete(todos).where(eq(todos.id, id)),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["lists"] }),
 	})
 
 	return (

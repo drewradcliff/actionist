@@ -27,8 +27,10 @@ export const todos = sqliteTable("todos", {
 })
 
 export const todosRelations = relations(todos, ({ one }) => ({
-	list: one(todos, {
+	list: one(lists, {
 		fields: [todos.listId],
-		references: [todos.id]
+		references: [lists.id]
 	})
 }))
+
+export type SelectTodos = typeof todos.$inferSelect
