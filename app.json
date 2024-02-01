@@ -1,6 +1,6 @@
 {
 	"expo": {
-		"name": "actionist",
+		"name": "Actionist - A Doing App",
 		"slug": "actionist",
 		"version": "1.0.0",
 		"orientation": "portrait",
@@ -14,7 +14,8 @@
 		},
 		"assetBundlePatterns": ["**/*"],
 		"ios": {
-			"supportsTablet": true
+			"supportsTablet": true,
+			"bundleIdentifier": "com.sirampr.actionist"
 		},
 		"android": {
 			"adaptiveIcon": {
