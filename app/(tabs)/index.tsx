@@ -7,7 +7,15 @@ import { eq } from "drizzle-orm"
 import { Link } from "expo-router"
 import { StatusBar } from "expo-status-bar"
 import { useState } from "react"
-import { Pressable, Text, TextInput, View } from "react-native"
+import {
+	Keyboard,
+	KeyboardAvoidingView,
+	Pressable,
+	ScrollView,
+	Text,
+	TextInput,
+	View,
+} from "react-native"
 import { queryClient } from "../_layout"
 
 export default function App() {
@@ -27,31 +35,40 @@ export default function App() {
 		.flat()
 
 	return (
-		<View className="flex-1 bg-white px-4 pt-6">
-			<StatusBar style="auto" />
-			{!!doingTodos?.length && (
-				<View className="pb-12">
-					<Text className="pb-4 text-xl">✨ Focus ✨</Text>
-					<TodoList todoData={doingTodos ?? []} />
-				</View>
-			)}
-			{data?.map(({ id, title, todos }) => (
-				<View key={id} className="pb-12">
-					<View className="flex-row justify-between">
-						<Text className="pb-2 text-xl">{title}</Text>
-						<Link
-							href={{
-								pathname: "/modal/[id, archive]",
-								params: { id, archive: 1 },
-							}}
-						>
-							<Ionicons name="ellipsis-horizontal" size={24} color="black" />
-						</Link>
+		<KeyboardAvoidingView
+			behavior="padding"
+			className="flex-1"
+			keyboardVerticalOffset={100}
+		>
+			<ScrollView
+				onScrollBeginDrag={() => Keyboard.dismiss()}
+				className="bg-white px-4 pt-6"
+			>
+				<StatusBar style="auto" />
+				{!!doingTodos?.length && (
+					<View className="pb-12">
+						<Text className="pb-4 text-xl">✨ Focus ✨</Text>
+						<TodoList todoData={doingTodos ?? []} />
 					</View>
-					<TodoWrapper todos={todos} id={id} />
-				</View>
-			))}
-		</View>
+				)}
+				{data?.map(({ id, title, todos }) => (
+					<View key={id} className="pb-12">
+						<View className="flex-row justify-between">
+							<Text className="pb-2 text-xl">{title}</Text>
+							<Link
+								href={{
+									pathname: "/modal/[id, archive]",
+									params: { id, archive: 1 },
+								}}
+							>
+								<Ionicons name="ellipsis-horizontal" size={24} color="black" />
+							</Link>
+						</View>
+						<TodoWrapper todos={todos} id={id} />
+					</View>
+				))}
+			</ScrollView>
+		</KeyboardAvoidingView>
 	)
 }
 

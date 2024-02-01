@@ -15,6 +15,7 @@ export default function Add() {
 				title: text,
 			}),
 		onSuccess: () => router.replace("/"),
+		onError: (error) => console.log(error),
 	})
 
 	return (

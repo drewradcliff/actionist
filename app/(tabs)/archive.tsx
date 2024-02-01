@@ -2,7 +2,7 @@ import { db } from "@/db/client"
 import { Ionicons } from "@expo/vector-icons"
 import { useQuery } from "@tanstack/react-query"
 import { Link, Stack } from "expo-router"
-import { Text, View } from "react-native"
+import { ScrollView, Text, View } from "react-native"
 
 export default function Archive() {
 	const { data } = useQuery({
@@ -14,7 +14,7 @@ export default function Archive() {
 	})
 
 	return (
-		<View className="flex-1 gap-y-4 bg-white p-4">
+		<ScrollView className="flex-1 gap-y-4 bg-white p-4">
 			<Stack.Screen
 				options={{
 					title: "archive",
@@ -36,6 +36,6 @@ export default function Archive() {
 					</Link>
 				</View>
 			))}
-		</View>
+		</ScrollView>
 	)
 }
