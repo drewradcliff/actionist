@@ -30,6 +30,15 @@
 		"plugins": ["expo-router"],
 		"experiments": {
 			"typedRoutes": true
-		}
+		},
+		"extra": {
+			"router": {
+				"origin": false
+			},
+			"eas": {
+				"projectId": "a841d4fb-7d96-413b-b5f3-9b157705fb42"
+			}
+		},
+		"owner": "sirampr"
 	}
 }
