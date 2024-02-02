@@ -1,6 +1,6 @@
 import ProgressBar from "@/components/progress-bar"
 import { db } from "@/db/client"
-import { todos, type SelectTodos } from "@/db/schema"
+import { lists, todos, type SelectTodos } from "@/db/schema"
 import { Feather, Ionicons } from "@expo/vector-icons"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { eq } from "drizzle-orm"
@@ -48,23 +48,12 @@ export default function App() {
 				{!!doingTodos?.length && (
 					<View className="pb-12">
 						<Text className="pb-4 text-xl">✨ Focus ✨</Text>
-						<TodoList todoData={doingTodos ?? []} />
+						<Todos todoData={doingTodos ?? []} />
 					</View>
 				)}
 				{data?.map(({ id, title, todos }) => (
 					<View key={id} className="pb-12">
-						<View className="flex-row justify-between">
-							<Text className="pb-2 text-xl">{title}</Text>
-							<Link
-								href={{
-									pathname: "/modal/[id, archive]",
-									params: { id, archive: 1 },
-								}}
-							>
-								<Ionicons name="ellipsis-horizontal" size={24} color="black" />
-							</Link>
-						</View>
-						<TodoWrapper todos={todos} id={id} />
+						<List todos={todos} id={id} title={title} />
 					</View>
 				))}
 			</ScrollView>
@@ -72,40 +61,79 @@ export default function App() {
 	)
 }
 
-function TodoWrapper({
+function List({
 	todos: todosData,
 	id,
+	title,
 }: {
 	todos: SelectTodos[]
 	id: number
+	title: string
 }) {
-	const [text, setText] = useState("")
+	const [listTitle, setListTitle] = useState(title)
+	const [addTodoText, setTodoText] = useState("")
+	const [editingTitle, setEditingTitle] = useState(false)
 
-	const { mutate } = useMutation({
+	const { mutate: addTodo } = useMutation({
 		mutationFn: () =>
 			db.insert(todos).values({
-				title: text,
+				title: addTodoText,
 				status: "TODO",
 				listId: id,
 			}),
 		onSuccess: () => {
-			setText("")
+			setTodoText("")
 			queryClient.invalidateQueries({ queryKey: ["lists"] })
 		},
 	})
 
+	const { mutate: updateListTitle } = useMutation({
+		mutationFn: () => {
+			setEditingTitle(false)
+			return db.update(lists).set({ title: listTitle }).where(eq(lists.id, id))
+		},
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["lists"] }),
+	})
+
 	return (
 		<View>
+			<View className="flex-row justify-between">
+				{editingTitle ? (
+					<TextInput
+						autoFocus
+						className="flex-1 pb-2 text-xl"
+						value={listTitle}
+						onChangeText={(value) => setListTitle(value)}
+						onSubmitEditing={() => updateListTitle()}
+						onBlur={() => updateListTitle()}
+					/>
+				) : (
+					<Text
+						onPress={() => setEditingTitle(true)}
+						className="flex-1 pb-2 text-xl"
+					>
+						{title}
+					</Text>
+				)}
+				<Link
+					href={{
+						pathname: "/modal/[id, archive]",
+						params: { id, archive: 1 },
+					}}
+				>
+					<Ionicons name="ellipsis-horizontal" size={24} color="black" />
+				</Link>
+			</View>
 			<ProgressBar todos={todosData} />
-			<TodoList todoData={todosData} />
+			<Todos todoData={todosData} />
 			<View className="flex-row">
 				<TextInput
 					placeholder="Add todo"
 					className="flex-1 py-1"
-					value={text}
-					onChangeText={setText}
+					value={addTodoText}
+					onChangeText={setTodoText}
 					onSubmitEditing={() => {
-						if (text) mutate()
+						if (addTodoText) addTodo()
 					}}
 				/>
 			</View>
@@ -113,7 +141,7 @@ function TodoWrapper({
 	)
 }
 
-function TodoList({ todoData }: { todoData: SelectTodos[]; icon?: any }) {
+function Todos({ todoData }: { todoData: SelectTodos[]; icon?: any }) {
 	return (
 		<View>
 			{todoData.map(({ id, title, status }) => (
