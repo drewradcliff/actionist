@@ -132,6 +132,7 @@ function List({
 					className="flex-1 py-1"
 					value={addTodoText}
 					onChangeText={setTodoText}
+					blurOnSubmit={false}
 					onSubmitEditing={() => {
 						if (addTodoText) addTodo()
 					}}
@@ -211,6 +212,11 @@ function Todo({
 				value={value}
 				onChangeText={setValue}
 				onBlur={() => (value === "" ? deleteTodo() : mutateTitle(value))}
+				onKeyPress={({ nativeEvent }) => {
+					if (nativeEvent.key === "Backspace" && value === "") {
+						deleteTodo()
+					}
+				}}
 			/>
 		</View>
 	)
