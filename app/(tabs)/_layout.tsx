@@ -1,4 +1,3 @@
-import "@/styles/global.css"
 import { Feather } from "@expo/vector-icons"
 import { Link, Tabs } from "expo-router"
 

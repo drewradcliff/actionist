@@ -3,6 +3,7 @@ import { db } from "@/db/client"
 import { lists, todos, type SelectTodos } from "@/db/schema"
 import { Feather, Ionicons } from "@expo/vector-icons"
 import { useMutation, useQuery } from "@tanstack/react-query"
+import clsx from "clsx"
 import { eq } from "drizzle-orm"
 import { Link } from "expo-router"
 import { StatusBar } from "expo-status-bar"
@@ -194,21 +195,22 @@ function Todo({
 
 	return (
 		<View className="flex-row items-center">
-			<Checkbox
-				onChange={() => mutateStatus(status === "DONE" ? "TODO" : "DONE")}
-				checked={status === "DONE"}
-			/>
-			<Pressable
-				onPress={() =>
-					mutateStatus(
-						status === "TODO" ? "DOING" : status === "DOING" ? "DONE" : "TODO",
-					)
-				}
-			>
-				<Text className="px-2 py-1">{status}</Text>
-			</Pressable>
+			<View className="pr-2">
+				<Checkbox
+					onChange={() => mutateStatus(status === "DONE" ? "TODO" : "DONE")}
+					checked={status === "DONE"}
+				/>
+			</View>
+			{status !== "DONE" && (
+				<Pressable
+					className="pr-2"
+					onPress={() => mutateStatus(status === "TODO" ? "DOING" : "TODO")}
+				>
+					<Text className="py-1">{status}</Text>
+				</Pressable>
+			)}
 			<TextInput
-				className={`flex-1 ${status === "DONE" && "line-through"}`}
+				className={clsx("flex-1", status === "DONE" && "line-through")}
 				value={value}
 				onChangeText={setValue}
 				onBlur={() => (value === "" ? deleteTodo() : mutateTitle(value))}

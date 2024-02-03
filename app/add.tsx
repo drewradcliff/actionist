@@ -1,6 +1,7 @@
 import { db } from "@/db/client"
 import { lists } from "@/db/schema"
 import { useMutation } from "@tanstack/react-query"
+import { clsx } from "clsx"
 import { useRouter } from "expo-router"
 import { useState } from "react"
 import { Pressable, Text, TextInput, View } from "react-native"
@@ -19,7 +20,7 @@ export default function Add() {
 	})
 
 	return (
-		<View className="p-4">
+		<View className="flex-1 bg-white p-4">
 			<View className="flex-row justify-center pb-4">
 				<View className="h-1 w-10 rounded bg-gray-300" />
 			</View>
@@ -31,10 +32,21 @@ export default function Add() {
 				onChangeText={setText}
 			/>
 			<Pressable
-				onPress={() => mutate()}
-				className="rounded-xl bg-gray-700 py-4"
+				onPress={() => {
+					if (text) mutate()
+				}}
+				className="rounded-xl py-4"
 			>
-				<Text className="text-center text-white">Create</Text>
+				{({ pressed }) => (
+					<View
+						className={clsx(
+							"rounded-xl border-gray-300  py-4 pl-4",
+							pressed ? "bg-gray-200" : "bg-gray-100",
+						)}
+					>
+						<Text className="text-center">Create</Text>
+					</View>
+				)}
 			</Pressable>
 		</View>
 	)

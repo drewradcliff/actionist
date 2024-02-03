@@ -1,5 +1,6 @@
 import { db } from "@/db/client"
 import migrations from "@/drizzle/migrations"
+import "@/styles/global.css"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator"
 import { Stack } from "expo-router"
