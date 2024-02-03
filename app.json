@@ -2,7 +2,7 @@
 	"expo": {
 		"name": "Actionist - A Doing App",
 		"slug": "actionist",
-		"version": "1.0.0",
+		"version": "1.1.0",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
 		"scheme": "actionist",
@@ -40,6 +40,12 @@
 				"projectId": "a841d4fb-7d96-413b-b5f3-9b157705fb42"
 			}
 		},
-		"owner": "sirampr"
+		"owner": "sirampr",
+		"runtimeVersion": {
+			"policy": "appVersion"
+		},
+		"updates": {
+			"url": "https://u.expo.dev/a841d4fb-7d96-413b-b5f3-9b157705fb42"
+		}
 	}
 }
