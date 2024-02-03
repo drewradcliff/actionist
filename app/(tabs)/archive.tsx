@@ -14,7 +14,7 @@ export default function Archive() {
 	})
 
 	return (
-		<ScrollView className="flex-1 gap-y-4 bg-white p-4">
+		<ScrollView className="flex-1 gap-y-4 bg-white p-4 dark:bg-zinc-950">
 			<Stack.Screen
 				options={{
 					title: "archive",

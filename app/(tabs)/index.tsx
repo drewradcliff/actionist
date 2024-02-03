@@ -42,7 +42,7 @@ export default function App() {
 		>
 			<ScrollView
 				onScrollBeginDrag={() => Keyboard.dismiss()}
-				className="bg-white px-4 pt-6"
+				className="bg-white px-4 pt-6 dark:bg-zinc-950"
 			>
 				<StatusBar style="auto" />
 				{!!doingTodos?.length && (
