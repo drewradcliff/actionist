@@ -115,8 +115,12 @@ function List({
 						className="flex-1 pb-2 text-xl"
 						value={listTitle}
 						onChangeText={(value) => setListTitle(value)}
-						onSubmitEditing={() => updateListTitle()}
 						onBlur={() => updateListTitle()}
+						onKeyPress={({ nativeEvent }) => {
+							if (nativeEvent.key === "Enter") {
+								updateListTitle()
+							}
+						}}
 					/>
 				) : (
 					<Text
