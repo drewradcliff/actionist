@@ -14,7 +14,7 @@ export default function Archive() {
 	})
 
 	return (
-		<ScrollView className="flex-1 gap-y-4 bg-white p-4">
+		<ScrollView className="flex-1 bg-white p-4">
 			<Stack.Screen
 				options={{
 					title: "archive",
@@ -23,10 +23,13 @@ export default function Archive() {
 			{data?.map(({ id, title }) => (
 				<View
 					key={id}
-					className="flex-row items-center justify-between rounded-xl bg-gray-200 p-4"
+					className="mb-4 flex-row items-center justify-between rounded-xl bg-gray-100 p-4"
 				>
-					<Text>{title}</Text>
+					<Text className="flex-1" numberOfLines={1}>
+						{title}
+					</Text>
 					<Link
+						className="pl-2"
 						href={{
 							pathname: "/modal/[id, archive]",
 							params: { id, archive: 0 },

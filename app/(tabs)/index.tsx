@@ -3,7 +3,6 @@ import { db } from "@/db/client"
 import { lists, todos, type SelectTodos } from "@/db/schema"
 import { Feather, Ionicons } from "@expo/vector-icons"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import clsx from "clsx"
 import { eq } from "drizzle-orm"
 import { Link } from "expo-router"
 import { StatusBar } from "expo-status-bar"
@@ -34,6 +33,15 @@ export default function App() {
 	const doingTodos = data
 		?.map(({ todos }) => todos.filter(({ status }) => status === "DOING"))
 		.flat()
+
+	if (!data?.length)
+		return (
+			<View className="flex-1 items-center justify-center bg-white">
+				<Text className="text-xl font-extralight text-gray-700">
+					You're all caught up
+				</Text>
+			</View>
+		)
 
 	return (
 		<KeyboardAvoidingView
@@ -102,6 +110,8 @@ function List({
 				{editingTitle ? (
 					<TextInput
 						autoFocus
+						multiline
+						maxLength={150}
 						className="flex-1 pb-2 text-xl"
 						value={listTitle}
 						onChangeText={(value) => setListTitle(value)}
@@ -112,11 +122,13 @@ function List({
 					<Text
 						onPress={() => setEditingTitle(true)}
 						className="flex-1 pb-2 text-xl"
+						numberOfLines={1}
 					>
 						{title}
 					</Text>
 				)}
 				<Link
+					className="pl-2"
 					href={{
 						pathname: "/modal/[id, archive]",
 						params: { id, archive: 1 },
@@ -165,6 +177,7 @@ function Todo({
 	status: string
 }) {
 	const [value, setValue] = useState(title)
+	const [editingTodo, setEditingTodo] = useState(false)
 
 	const { mutate: mutateStatus } = useMutation({
 		mutationFn: (status: string) =>
@@ -178,13 +191,14 @@ function Todo({
 	})
 
 	const { mutate: mutateTitle } = useMutation({
-		mutationFn: (title: string) =>
-			db
+		mutationFn: (title: string) => {
+			return db
 				.update(todos)
 				.set({
 					title: title,
 				})
-				.where(eq(todos.id, id)),
+				.where(eq(todos.id, id))
+		},
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["lists"] }),
 	})
 
@@ -194,7 +208,7 @@ function Todo({
 	})
 
 	return (
-		<View className="flex-row items-center">
+		<View className="flex-row">
 			<View className="pr-2">
 				<Checkbox
 					onChange={() => mutateStatus(status === "DONE" ? "TODO" : "DONE")}
@@ -203,23 +217,48 @@ function Todo({
 			</View>
 			{status !== "DONE" && (
 				<Pressable
-					className="pr-2"
+					className="pr-2 pt-1"
 					onPress={() => mutateStatus(status === "TODO" ? "DOING" : "TODO")}
 				>
-					<Text className="py-1">{status}</Text>
+					<Text>{status}</Text>
 				</Pressable>
 			)}
-			<TextInput
-				className={clsx("flex-1", status === "DONE" && "line-through")}
-				value={value}
-				onChangeText={setValue}
-				onBlur={() => (value === "" ? deleteTodo() : mutateTitle(value))}
-				onKeyPress={({ nativeEvent }) => {
-					if (nativeEvent.key === "Backspace" && value === "") {
-						deleteTodo()
-					}
-				}}
-			/>
+			{!editingTodo ? (
+				<Pressable className="flex-1 pt-1" onPress={() => setEditingTodo(true)}>
+					<Text
+						className={status === "DONE" ? "line-through" : ""}
+						numberOfLines={1}
+					>
+						{title}
+					</Text>
+				</Pressable>
+			) : (
+				<TextInput
+					autoFocus
+					maxLength={150}
+					multiline
+					className="flex-1 pt-1"
+					value={value}
+					onChangeText={setValue}
+					onBlur={() => {
+						if (value === "") {
+							deleteTodo()
+						} else {
+							mutateTitle(value)
+						}
+						setEditingTodo(false)
+					}}
+					onKeyPress={({ nativeEvent }) => {
+						if (nativeEvent.key === "Backspace" && value === "") {
+							deleteTodo()
+						}
+						if (nativeEvent.key === "Enter") {
+							mutateTitle(value)
+							setEditingTodo(false)
+						}
+					}}
+				/>
+			)}
 		</View>
 	)
 }
@@ -234,7 +273,7 @@ function Checkbox({
 	return (
 		<Pressable
 			onPress={onChange}
-			className="h-8 w-8 items-center justify-center bg-gray-200"
+			className="h-7 w-7 items-center justify-center bg-gray-200"
 		>
 			{checked && <Feather name="check" size={16} />}
 		</Pressable>
