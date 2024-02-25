@@ -8,6 +8,7 @@ import { Link } from "expo-router"
 import { StatusBar } from "expo-status-bar"
 import { useState } from "react"
 import {
+	Alert,
 	Keyboard,
 	KeyboardAvoidingView,
 	Pressable,
@@ -15,10 +16,12 @@ import {
 	Text,
 	TextInput,
 	View,
+	type NativeScrollEvent,
 } from "react-native"
 import { queryClient } from "../_layout"
 
 export default function App() {
+	const [closeToBottom, setCloseToBottom] = useState(false)
 	const { data } = useQuery({
 		queryKey: ["lists"],
 		queryFn: () =>
@@ -30,9 +33,27 @@ export default function App() {
 			}),
 	})
 
+	const { mutate: mutateArchiveAll } = useMutation({
+		mutationFn: () =>
+			db.update(lists).set({ isArchived: 1 }).where(eq(lists.isArchived, 0)),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["lists"] })
+			queryClient.invalidateQueries({ queryKey: ["lists.archive"] })
+		},
+	})
+
 	const doingTodos = data
 		?.map(({ todos }) => todos.filter(({ status }) => status === "DOING"))
 		.flat()
+	const isCloseToBottom = ({
+		layoutMeasurement,
+		contentOffset,
+		contentSize,
+	}: NativeScrollEvent) => {
+		return (
+			layoutMeasurement.height + contentOffset.y >= contentSize.height + 150
+		)
+	}
 
 	if (!data?.length)
 		return (
@@ -50,6 +71,28 @@ export default function App() {
 			keyboardVerticalOffset={100}
 		>
 			<ScrollView
+				onScrollEndDrag={() => {
+					if (closeToBottom) {
+						Alert.alert("Archive all", "Are you sure?", [
+							{
+								text: "Cancel",
+								style: "cancel",
+							},
+							{
+								text: "OK",
+								onPress: () => mutateArchiveAll(),
+							},
+						])
+					}
+				}}
+				onScroll={({ nativeEvent }) => {
+					if (isCloseToBottom(nativeEvent)) {
+						setCloseToBottom(true)
+					} else {
+						setCloseToBottom(false)
+					}
+				}}
+				scrollEventThrottle={10}
 				onScrollBeginDrag={() => Keyboard.dismiss()}
 				className="bg-white px-4 pt-6"
 			>
@@ -66,6 +109,13 @@ export default function App() {
 					</View>
 				))}
 			</ScrollView>
+			{closeToBottom && (
+				<View className="absolute bottom-0 w-full pb-2">
+					<Text className="text-center text-2xl font-bold text-gray-300">
+						Pull to archive all
+					</Text>
+				</View>
+			)}
 		</KeyboardAvoidingView>
 	)
 }
