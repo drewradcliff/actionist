@@ -50,9 +50,11 @@ export default function App() {
 		contentOffset,
 		contentSize,
 	}: NativeScrollEvent) => {
-		const offset = contentSize.height < layoutMeasurement.height ? 610 : 100
+		if (contentSize.height < layoutMeasurement.height) {
+			return contentOffset.y > 100
+		}
 		return (
-			layoutMeasurement.height + contentOffset.y >= contentSize.height + offset
+			layoutMeasurement.height + contentOffset.y >= contentSize.height + 100
 		)
 	}
 
