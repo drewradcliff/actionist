@@ -30,6 +30,7 @@ export default function Add() {
 				placeholder="List Name"
 				value={text}
 				onChangeText={setText}
+				autoFocus
 			/>
 			<Pressable
 				onPress={() => {
