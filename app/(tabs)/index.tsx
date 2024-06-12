@@ -331,6 +331,7 @@ function Checkbox({
 		<Pressable
 			onPress={onChange}
 			className="h-7 w-7 items-center justify-center bg-gray-200"
+			hitSlop={8}
 		>
 			{checked && <Feather name="check" size={16} />}
 		</Pressable>
