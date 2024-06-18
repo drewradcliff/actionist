@@ -18,6 +18,10 @@ import {
 	View,
 	type NativeScrollEvent,
 } from "react-native"
+import DraggableFlatList, {
+	ScaleDecorator,
+} from "react-native-draggable-flatlist"
+import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { queryClient } from "../_layout"
 
 export default function App() {
@@ -213,14 +217,34 @@ function List({
 }
 
 function Todos({ todoData }: { todoData: SelectTodos[]; icon?: any }) {
+	const { mutate: updateTodos } = useMutation({
+		mutationFn: (data) => db.update(todos).set(data),
+	})
+
 	return (
-		<View>
-			{todoData.map(({ id, title, status }) => (
+		<GestureHandlerRootView style={{ flex: 1 }}>
+			<DraggableFlatList
+				data={todoData}
+				scrollEnabled={false}
+				keyExtractor={(item) => item.id.toString()}
+				onDragEnd={({ data }) => updateTodos(data)}
+				renderItem={({ item, drag, isActive }) => (
+					<ScaleDecorator>
+						<Pressable onLongPress={drag} disabled={isActive}>
+							<View>
+								<Text>{item.title}</Text>
+							</View>
+							{/* <Todo id={item.id} title={item.title} status={item.status} /> */}
+						</Pressable>
+					</ScaleDecorator>
+				)}
+			/>
+			{/* {todoData.map(({ id, title, status }) => (
 				<View key={id} className="pb-4">
-					<Todo id={id} title={title} status={status} />
+				<Todo id={id} title={title} status={status} />
 				</View>
-			))}
-		</View>
+				))} */}
+		</GestureHandlerRootView>
 	)
 }
 
