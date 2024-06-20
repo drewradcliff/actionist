@@ -2,7 +2,7 @@
 	"name": "drizzle-expo-sqlite",
 	"main": "expo-router/entry",
 	"private": true,
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"scripts": {
 		"start": "expo start",
 		"android": "expo start --android",
