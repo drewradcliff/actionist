@@ -1,7 +1,8 @@
 import ProgressBar from "@/components/progress-bar"
+import { Todos } from "@/components/todos"
 import { db } from "@/db/client"
 import { lists, todos, type SelectTodos } from "@/db/schema"
-import { Feather, Ionicons } from "@expo/vector-icons"
+import { Ionicons } from "@expo/vector-icons"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { eq } from "drizzle-orm"
 import { Link } from "expo-router"
@@ -11,7 +12,6 @@ import {
 	Alert,
 	Keyboard,
 	KeyboardAvoidingView,
-	Pressable,
 	ScrollView,
 	Text,
 	TextInput,
@@ -209,131 +209,5 @@ function List({
 				/>
 			</View>
 		</View>
-	)
-}
-
-function Todos({ todoData }: { todoData: SelectTodos[]; icon?: any }) {
-	return (
-		<View>
-			{todoData.map(({ id, title, status }) => (
-				<View key={id} className="pb-4">
-					<Todo id={id} title={title} status={status} />
-				</View>
-			))}
-		</View>
-	)
-}
-
-function Todo({
-	id,
-	title,
-	status,
-}: {
-	id: number
-	title: string
-	status: string
-}) {
-	const [value, setValue] = useState(title)
-	const [editingTodo, setEditingTodo] = useState(false)
-
-	const { mutate: mutateStatus } = useMutation({
-		mutationFn: (status: string) =>
-			db
-				.update(todos)
-				.set({
-					status: status,
-				})
-				.where(eq(todos.id, id)),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["lists"] }),
-	})
-
-	const { mutate: mutateTitle } = useMutation({
-		mutationFn: (title: string) => {
-			return db
-				.update(todos)
-				.set({
-					title: title,
-				})
-				.where(eq(todos.id, id))
-		},
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["lists"] }),
-	})
-
-	const { mutate: deleteTodo } = useMutation({
-		mutationFn: () => db.delete(todos).where(eq(todos.id, id)),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["lists"] }),
-	})
-
-	return (
-		<View className="flex-row">
-			<View className="pr-2">
-				<Checkbox
-					onChange={() => mutateStatus(status === "DONE" ? "TODO" : "DONE")}
-					checked={status === "DONE"}
-				/>
-			</View>
-			{status !== "DONE" && (
-				<Pressable
-					className="pr-2 pt-1"
-					onPress={() => mutateStatus(status === "TODO" ? "DOING" : "TODO")}
-				>
-					<Text>{status}</Text>
-				</Pressable>
-			)}
-			{!editingTodo ? (
-				<Pressable className="flex-1 pt-1" onPress={() => setEditingTodo(true)}>
-					<Text
-						className={status === "DONE" ? "line-through" : ""}
-						numberOfLines={1}
-					>
-						{title}
-					</Text>
-				</Pressable>
-			) : (
-				<TextInput
-					autoFocus
-					maxLength={150}
-					multiline
-					className="flex-1 pt-1"
-					value={value}
-					onChangeText={setValue}
-					onBlur={() => {
-						if (value === "") {
-							deleteTodo()
-						} else {
-							mutateTitle(value)
-						}
-						setEditingTodo(false)
-					}}
-					onKeyPress={({ nativeEvent }) => {
-						if (nativeEvent.key === "Backspace" && value === "") {
-							deleteTodo()
-						}
-						if (nativeEvent.key === "Enter") {
-							mutateTitle(value)
-							setEditingTodo(false)
-						}
-					}}
-				/>
-			)}
-		</View>
-	)
-}
-
-function Checkbox({
-	onChange,
-	checked,
-}: {
-	onChange?: () => void
-	checked?: boolean
-}) {
-	return (
-		<Pressable
-			onPress={onChange}
-			className="h-7 w-7 items-center justify-center bg-gray-200"
-			hitSlop={8}
-		>
-			{checked && <Feather name="check" size={16} />}
-		</Pressable>
 	)
 }
