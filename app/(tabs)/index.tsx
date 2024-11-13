@@ -30,6 +30,7 @@ export default function App() {
 				with: {
 					todos: true,
 				},
+				orderBy: (lists, { desc }) => [desc(lists.createdAt)],
 			}),
 	})
 
