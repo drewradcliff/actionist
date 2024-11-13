@@ -103,7 +103,6 @@ function Todo({
 							{ "line-through": status === "DONE" },
 							{ "text-gray-500": disabled },
 						)}
-						numberOfLines={1}
 					>
 						{title}
 					</Text>
