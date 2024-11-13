@@ -1,4 +1,5 @@
 import type { SelectTodos } from "@/db/schema"
+import clsx from "clsx"
 import { Text, View } from "react-native"
 
 export default function ProgressBar({ todos }: { todos: SelectTodos[] }) {
@@ -7,9 +8,15 @@ export default function ProgressBar({ todos }: { todos: SelectTodos[] }) {
 
 	return (
 		<View className="flex-row items-center justify-between pb-4">
-			<View className="h-2 flex-1 bg-gray-100">
+			<View className="h-2 flex-1 bg-gray-50">
 				<View
-					className={"h-2 bg-gray-500"}
+					className={clsx("h-2", {
+						"bg-[#e4e8ee]": donePercentage <= 25,
+						"bg-[#d7e3fc]": donePercentage > 25 && donePercentage <= 50,
+						"bg-[#ccdbfd]": donePercentage > 50 && donePercentage <= 75,
+						"bg-[#c1d3fe]": donePercentage > 75 && donePercentage < 100,
+						"bg-[#abc4ff]": donePercentage === 100,
+					})}
 					style={{
 						width: `${donePercentage}%`,
 					}}

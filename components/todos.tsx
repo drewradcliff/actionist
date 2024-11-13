@@ -73,7 +73,7 @@ function Todo({
 		<View
 			className={clsx(
 				"flex-row p-2",
-				status === "DOING" && "rounded-md bg-yellow-100",
+				status === "DOING" && "rounded-md bg-[#fcf4dd]",
 			)}
 		>
 			<View pointerEvents={disabled ? "none" : "auto"} className="pr-2">
