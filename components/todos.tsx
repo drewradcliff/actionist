@@ -19,7 +19,7 @@ export function Todos({
 	return (
 		<View>
 			{todoData?.map(({ id, title, status }) => (
-				<View key={id} className="pb-4">
+				<View key={id} className="pb-2">
 					<Todo id={id} title={title} status={status} disabled={disabled} />
 				</View>
 			))}
@@ -70,7 +70,12 @@ function Todo({
 	})
 
 	return (
-		<View className="flex-row">
+		<View
+			className={clsx(
+				"flex-row p-2",
+				status === "DOING" && "rounded-md bg-yellow-100",
+			)}
+		>
 			<View pointerEvents={disabled ? "none" : "auto"} className="pr-2">
 				<Checkbox
 					onChange={() => mutateStatus(status === "DONE" ? "TODO" : "DONE")}
