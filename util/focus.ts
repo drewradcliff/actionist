@@ -1,8 +1,6 @@
 import { db } from "@/db/client"
 import { type SelectTodos } from "@/db/schema"
 
-export type FocusTodo = Pick<SelectTodos, "id" | "listId" | "status" | "title">
-
 type InboxListWithTodos = {
 	todos: SelectTodos[]
 }
