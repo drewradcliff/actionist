@@ -21,7 +21,7 @@
 		"expo-linking": "~6.2.1",
 		"expo-router": "~3.4.1",
 		"expo-splash-screen": "~0.26.1",
-		"expo-sqlite": "next",
+		"expo-sqlite": "~13.1.2",
 		"expo-status-bar": "~1.11.1",
 		"expo-system-ui": "~2.9.2",
 		"expo-updates": "~0.24.9",
