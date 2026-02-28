@@ -34,9 +34,18 @@ export default function Layout() {
 	return (
 		<Tabs screenOptions={{ tabBarShowLabel: false }}>
 			<Tabs.Screen
+				name="now"
+				options={{
+					title: "now",
+					tabBarIcon: ({ focused }) => (
+						<Feather name="crosshair" size={22} color={focused ? "black" : "gray"} />
+					),
+				}}
+			/>
+			<Tabs.Screen
 				name="index"
 				options={{
-					title: "todo",
+					title: "inbox",
 					tabBarIcon: ({ focused }) => (
 						<Feather name="home" size={24} color={focused ? "black" : "gray"} />
 					),

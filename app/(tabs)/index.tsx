@@ -2,6 +2,7 @@ import ProgressBar from "@/components/progress-bar"
 import { Todos } from "@/components/todos"
 import { db } from "@/db/client"
 import { lists, todos, type SelectTodos } from "@/db/schema"
+import { getInboxListsWithTodos, selectDoingTodos } from "@/util/focus"
 import { Ionicons } from "@expo/vector-icons"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { eq } from "drizzle-orm"
@@ -24,14 +25,7 @@ export default function App() {
 	const [closeToBottom, setCloseToBottom] = useState(false)
 	const { data } = useQuery({
 		queryKey: ["lists"],
-		queryFn: () =>
-			db.query.lists.findMany({
-				where: (lists, { eq }) => eq(lists.isArchived, 0),
-				with: {
-					todos: true,
-				},
-				orderBy: (lists, { desc }) => [desc(lists.createdAt)],
-			}),
+		queryFn: getInboxListsWithTodos,
 	})
 
 	const { mutate: mutateArchiveAll } = useMutation({
@@ -43,9 +37,7 @@ export default function App() {
 		},
 	})
 
-	const doingTodos = data
-		?.map(({ todos }) => todos.filter(({ status }) => status === "DOING"))
-		.flat()
+	const doingTodos = selectDoingTodos(data)
 	const isCloseToBottom = ({
 		layoutMeasurement,
 		contentOffset,
